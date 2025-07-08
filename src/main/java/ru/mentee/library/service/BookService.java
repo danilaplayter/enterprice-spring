@@ -1,6 +1,7 @@
 /* @MENTEE_POWER (C)2025 */
 package ru.mentee.library.service;
 
+import java.time.LocalDate;
 import java.util.List;
 import ru.mentee.library.api.dto.BookDto;
 import ru.mentee.library.api.dto.CreateBookRequest;
@@ -19,4 +20,5 @@ public interface BookService {
     void delete(long id);
 
     List<BookDto> findByAuthor(String author);
+
 }
