@@ -22,6 +22,9 @@ jobs:
       - name: Prepare
         run: chmod +x gradlew
 
+      - name: Apply code formatting
+        run: ./gradlew spotlessApply
+
       - name: Build without tests
         run: ./gradlew clean build -x test
 
