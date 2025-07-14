@@ -2,6 +2,7 @@
 package ru.mentee.library.api.dto;
 
 import java.time.LocalDate;
+import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,6 +12,7 @@ import ru.mentee.library.domain.model.Book;
 @NoArgsConstructor
 @AllArgsConstructor
 public class BookDto {
+
     private Long id;
     private String title;
     private String author;
@@ -21,9 +23,9 @@ public class BookDto {
     public static BookDto from(Book book) {
         return new BookDto(
                 book.getId(),
-                book.getTitle(),
-                book.getAuthor(),
-                book.getIsbn(),
+                Optional.ofNullable(book.getTitle()).orElse(""),
+                Optional.ofNullable(book.getAuthor()).orElse(""),
+                Optional.ofNullable(book.getIsbn()).orElse(""),
                 book.getPublishedDate(),
                 book.isAvailable());
     }
