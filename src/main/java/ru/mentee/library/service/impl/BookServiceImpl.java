@@ -7,6 +7,7 @@ import jakarta.transaction.Transactional;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import ru.mentee.library.api.dto.BookDto;
@@ -23,6 +24,7 @@ import ru.mentee.library.service.validation.IsbnValidator;
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@Scope("prototype")
 public class BookServiceImpl implements BookService {
 
     private final BookRepository bookRepository;
@@ -32,6 +34,9 @@ public class BookServiceImpl implements BookService {
     @Override
     @Transactional
     public BookDto create(CreateBookRequest request) {
+        if (request == null) {
+            log.info("Request can't be null.");
+        }
         isbnValidator.validate(request.getIsbn());
 
         Book book =

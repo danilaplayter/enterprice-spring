@@ -1,9 +1,11 @@
 /* @MENTEE_POWER (C)2025 */
 package ru.mentee.library.service.validation;
 
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 @Component
+@Scope("prototype")
 public class IsbnValidator {
 
     public void validate(String isbn) {
