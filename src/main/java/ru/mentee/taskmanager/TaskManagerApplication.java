@@ -1,15 +1,12 @@
 /* @MENTEE_POWER (C)2025 */
-package ru.mentee.library;
+package ru.mentee.taskmanager;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 @SpringBootApplication
-@EnableJpaAuditing
-public class LibraryApplication {
-
+public class TaskManagerApplication {
     public static void main(String[] args) {
-        SpringApplication.run(LibraryApplication.class, args);
+        SpringApplication.run(TaskManagerApplication.class, args);
     }
 }
