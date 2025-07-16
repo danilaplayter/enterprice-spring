@@ -5,6 +5,7 @@ plugins {
     id 'jacoco'
     id 'checkstyle'
     id 'com.diffplug.spotless' version '6.25.0'
+    id 'org.openapi.generator' version '6.6.0'  // Добавлен плагин OpenAPI Generator
 }
 
 group = 'ru.mentee.library'
@@ -32,7 +33,9 @@ ext {
             googleJavaFormat : '1.17.0',
             jackson          : '2.17.0',
             jaxbApi          : '4.0.0',
-            jaxbRuntime      : '4.0.2'
+            jaxbRuntime      : '4.0.2',
+            openapiGenerator : '6.6.0',  // Добавлена версия OpenAPI Generator
+            springdoc        : '2.5.0'
     ]
 }
 
@@ -68,6 +71,12 @@ dependencies {
     implementation "jakarta.xml.bind:jakarta.xml.bind-api:${versions.jaxbApi}"
     implementation "org.glassfish.jaxb:jaxb-runtime:${versions.jaxbRuntime}"
 
+    // OpenAPI
+    implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:${versions.springdoc}"
+    implementation "org.openapitools:jackson-databind-nullable:0.2.6"
+    implementation "io.swagger.core.v3:swagger-annotations:2.2.20"
+    implementation "javax.annotation:javax.annotation-api:1.3.2"
+
     // Testing
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation platform("org.junit:junit-bom:${versions.junit}")
@@ -78,11 +87,37 @@ dependencies {
     testImplementation "org.testcontainers:testcontainers:${versions.testcontainers}"
     testImplementation "org.testcontainers:junit-jupiter:${versions.testcontainers}"
     testImplementation "org.testcontainers:postgresql:${versions.testcontainers}"
-
-    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0'
-
 }
 
+// Конфигурация OpenAPI Generator
+openApiGenerate {
+    generatorName = "spring"
+    inputSpec = "C:\\Users\\danil\\IdeaProjects\\enterprice-spring\\src\\main\\resources\\api\\task-management-api.yaml"
+    outputDir = "$buildDir/generated"
+    apiPackage = "ru.mentee.api.generated.controller"
+    modelPackage = "ru.mentee.api.generated.dto"
+    configOptions = [
+            dateLibrary: "java8",
+            interfaceOnly: "true",
+            useTags: "true",
+            performBeanValidation: "true",
+            useBeanValidation: "true",
+            useSpringBoot3: "true",
+            delegatePattern: "true",
+            openApiNullable: "false"
+    ]
+}
+
+// Добавляем сгенерированный код в classpath
+sourceSets {
+    main {
+        java {
+            srcDirs += "$buildDir/generated/src/main/java"
+        }
+    }
+}
+
+// Остальные конфигурации (checkstyle, test, jacoco, spotless) остаются без изменений
 checkstyle {
     toolVersion = '10.12.5'
     configFile = file("${rootDir}/config/checkstyle/google_checks.xml")
@@ -138,3 +173,6 @@ spotless {
         endWithNewline()
     }
 }
+
+// Зависимость между компиляцией Java и генерацией OpenAPI
+compileJava.dependsOn tasks.named('openApiGenerate')
