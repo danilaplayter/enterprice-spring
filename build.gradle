@@ -92,7 +92,7 @@ dependencies {
 // Конфигурация OpenAPI Generator
 openApiGenerate {
     generatorName = "spring"
-    inputSpec = "C:\\Users\\danil\\IdeaProjects\\enterprice-spring\\src\\main\\resources\\api\\task-management-api.yaml"
+    inputSpec = "${projectDir}/src/main/resources/api/task-management-api.yaml"
     outputDir = "$buildDir/generated"
     apiPackage = "ru.mentee.api.generated.controller"
     modelPackage = "ru.mentee.api.generated.dto"
