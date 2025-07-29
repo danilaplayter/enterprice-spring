@@ -1,0 +1,165 @@
+openapi: 3.0.3
+info:
+  title: Online Learning Platform API
+  version: 1.0.0
+  description: API для платформы онлайн-обучения
+
+tags:
+  - name: Courses
+    description: Операции с курсами
+  - name: Lessons
+    description: Операции с уроками
+  - name: Notifications
+    description: Управление уведомлениями
+
+paths:
+  /api/v1/courses:
+    get:
+      tags: [Courses]
+      summary: Получить список курсов
+      parameters:
+        - name: Accept
+          in: header
+          schema:
+            type: string
+            enum: [application/json, application/xml, text/csv]
+        - name: category
+          in: query
+          schema:
+            type: string
+        - name: level
+          in: query
+          schema:
+            type: string
+            enum: [BEGINNER, INTERMEDIATE, ADVANCED]
+      responses:
+        '200':
+          description: Список курсов
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CourseList'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/CourseList'
+            text/csv:
+              schema:
+                type: string
+
+  /api/v1/courses/{courseId}/enroll:
+    post:
+      tags: [Courses]
+      summary: Записаться на курс (async)
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '202':
+          description: Запрос принят в обработку
+          headers:
+            Location:
+              schema:
+                type: string
+                description: URL для проверки статуса
+
+  /api/v1/courses/{courseId}/lessons/{lessonId}/video:
+    post:
+      tags: [Lessons]
+      summary: Загрузить видео урока
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: lessonId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                title:
+                  type: string
+                duration:
+                  type: integer
+      responses:
+        '201':
+          description: Видео загружено
+
+  /api/v1/notifications/stream:
+    get:
+      tags: [Notifications]
+      summary: Подписаться на уведомления (SSE)
+      responses:
+        '200':
+          description: Event stream
+          content:
+            text/event-stream:
+              schema:
+                type: string
+
+  /api/v1/users/me/progress:
+    get:
+      tags: [Courses]
+      summary: Прогресс текущего пользователя
+      responses:
+        '200':
+          description: Информация о прогрессе
+
+components:
+  schemas:
+    Course:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        category:
+          type: string
+        level:
+          type: string
+          enum: [BEGINNER, INTERMEDIATE, ADVANCED]
+        duration:
+          type: integer
+          description: Продолжительность в часах
+        price:
+          type: number
+        instructor:
+          $ref: '#/components/schemas/Instructor'
+
+    Instructor:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        bio:
+          type: string
+        rating:
+          type: number
+          format: float
+
+    CourseList:
+      type: object
+      properties:
+        courses:
+          type: array
+          items:
+            $ref: '#/components/schemas/Course'
+        totalCount:
+          type: integer

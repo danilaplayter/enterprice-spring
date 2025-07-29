@@ -5,6 +5,7 @@ plugins {
     id 'jacoco'
     id 'checkstyle'
     id 'com.diffplug.spotless' version '6.25.0'
+    id "org.openapi.generator" version "7.5.0"
 }
 
 group = 'ru.mentee.library'
@@ -32,7 +33,7 @@ ext {
             googleJavaFormat : '1.17.0',
             jackson          : '2.17.0',
             jaxbApi          : '4.0.0',
-            jaxbRuntime      : '4.0.2'
+            jaxbRuntime      : '4.0.2',
     ]
 }
 
@@ -79,8 +80,42 @@ dependencies {
     testImplementation "org.testcontainers:junit-jupiter:${versions.testcontainers}"
     testImplementation "org.testcontainers:postgresql:${versions.testcontainers}"
 
+    // OpenAPI
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0'
 
+    implementation 'org.openapitools:jackson-databind-nullable:0.2.6'
+
+    // Для XML
+    implementation "com.fasterxml.jackson.dataformat:jackson-dataformat-xml:${versions.jackson}"
+
+    // Для CSV
+    implementation "com.fasterxml.jackson.dataformat:jackson-dataformat-csv:${versions.jackson}"
+
+    implementation 'jakarta.servlet:jakarta.servlet-api:6.0.0'
+
+}
+
+openApiGenerate {
+    generatorName = "spring"
+    inputSpec = "$projectDir/src/main/resources/api/online-study-api.yaml"
+    outputDir = "$buildDir/generated/openapi"
+    apiPackage = "ru.mentee.library.api"
+    modelPackage = "ru.mentee.library.model"
+    configOptions = [
+            useTags: "true",
+            interfaceOnly: "true",
+            skipDefaultInterface: "true",
+            openApiNullable: "false",
+            useSpringBoot3: "true"
+    ]
+}
+
+sourceSets {
+    main {
+        java {
+            srcDirs += "$buildDir/generated/openapi/src/main/java"
+        }
+    }
 }
 
 checkstyle {
