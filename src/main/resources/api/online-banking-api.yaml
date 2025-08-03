@@ -1,0 +1,195 @@
+openapi: 3.0.3
+info:
+  title: Online Banking API
+  version: 1.0.0
+
+paths:
+  /api/accounts:
+    post:
+      summary: Открыть новый счет
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAccountRequest'
+      responses:
+        '201':
+          description: Счет создан
+        '400':
+          description: Ошибка валидации
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+
+  /api/transfers:
+    post:
+      summary: Выполнить перевод
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransferRequest'
+      responses:
+        '201':
+          description: Перевод выполнен
+        '400':
+          description: Ошибка валидации
+        '422':
+          description: Бизнес-правила нарушены
+
+  /api/cards:
+    post:
+      summary: Заказать карту
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CardOrderRequest'
+      responses:
+        '201':
+          description: Карта заказана
+        '400':
+          description: Ошибка валидации
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationErrorResponse'
+        '422':
+          description: Бизнес-правила нарушены
+
+components:
+  schemas:
+    CreateAccountRequest:
+      type: object
+      required:
+        - accountType
+        - currency
+        - personalInfo
+      properties:
+        accountType:
+          type: string
+          enum: [CHECKING, SAVINGS, DEPOSIT]
+        currency:
+          type: string
+          pattern: '^[A-Z]{3}$'
+        initialDeposit:
+          type: number
+          minimum: 0
+        personalInfo:
+          $ref: '#/components/schemas/PersonalInfo'
+
+    PersonalInfo:
+      type: object
+      required:
+        - firstName
+        - lastName
+        - birthDate
+        - passport
+        - phone
+        - email
+      properties:
+        firstName:
+          type: string
+          minLength: 2
+          maxLength: 50
+        lastName:
+          type: string
+          minLength: 2
+          maxLength: 50
+        birthDate:
+          type: string
+          format: date
+        passport:
+          type: string
+          pattern: '^\d{4} \d{6}$'
+        phone:
+          type: string
+        email:
+          type: string
+          format: email
+
+    TransferRequest:
+      type: object
+      required:
+        - fromAccount
+        - toAccount
+        - amount
+        - currency
+      properties:
+        fromAccount:
+          type: string
+          description: IBAN или номер счета
+        toAccount:
+          type: string
+        beneficiaryName:
+          type: string
+        amount:
+          type: number
+          minimum: 0.01
+          maximum: 1000000
+        currency:
+          type: string
+        purpose:
+          type: string
+          maxLength: 210
+        urgency:
+          type: string
+          enum: [NORMAL, URGENT]
+
+    CardOrderRequest:
+      type: object
+      required:
+        - accountId
+        - cardType
+      properties:
+        accountId:
+          type: string
+          description: ID счета к которому привязывается карта
+        cardType:
+          type: string
+          enum: [DEBIT, CREDIT]
+        deliveryAddress:
+          type: string
+        cardDesign:
+          type: string
+
+    ValidationErrorResponse:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+        status:
+          type: integer
+        error:
+          type: string
+        message:
+          type: string
+        path:
+          type: string
+        fieldErrors:
+          type: array
+          items:
+            type: object
+            properties:
+              field:
+                type: string
+              code:
+                type: string
+              message:
+                type: string
+              rejectedValue:
+                type: object
+        globalErrors:
+          type: array
+          items:
+            type: object
+            properties:
+              code:
+                type: string
+              message:
+                type: string
