@@ -1,0 +1,17 @@
+INSERT INTO category (id, name) VALUES
+(1, 'Programming'),
+(2, 'Fiction');
+
+INSERT INTO author (id, first_name, last_name) VALUES
+(1, 'Josh', 'Bloch'),
+(2, 'Robert', 'Martin');
+
+INSERT INTO book (id, title, isbn, publication_year, pages, category_id, status) VALUES
+(1, 'Effective Java', '978-0134685991', 2018, 416, 1, 'AVAILABLE'),
+(2, 'Clean Code', '978-0132350884', 2008, 464, 1, 'AVAILABLE'),
+(3, 'The Pragmatic Programmer', '978-0201616224', 1999, 352, 1, 'BORROWED');
+
+INSERT INTO book_authors (book_id, authors_id) VALUES
+(1, 1),
+(2, 2),
+(3, 2);
