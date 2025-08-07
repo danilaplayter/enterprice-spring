@@ -8,6 +8,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
@@ -35,4 +36,6 @@ public class User {
 
     @OneToMany(mappedBy = "user")
     private Set<Loan> loans = new HashSet<>();
+
+    @Version private Long version;
 }

@@ -13,6 +13,7 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.Version;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
@@ -66,4 +67,6 @@ public class Book {
 
     @OneToMany(mappedBy = "book")
     private Set<Loan> loans = new HashSet<>();
+
+    @Version private Long version;
 }

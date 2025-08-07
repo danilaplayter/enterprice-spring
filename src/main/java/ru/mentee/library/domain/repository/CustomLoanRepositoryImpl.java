@@ -10,11 +10,24 @@ import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+/**
+ * Реализация кастомного репозитория для работы со статистикой по займам.
+ */
 @Repository
 @AllArgsConstructor
 public class CustomLoanRepositoryImpl implements CustomLoanRepository {
     private final EntityManager entityManager;
 
+    /**
+     * Реализация метода получения статистики по займам.
+     * Выполняет SQL-запрос для группировки займов по месяцам
+     * и подсчета количества займов в каждом месяце.
+     *
+     * @param startDate начальная дата периода (включительно)
+     * @param endDate конечная дата периода (включительно)
+     * @return Map, содержащая статистику по месяцам
+     *         (ключ: "ГГГГ-ММ", значение: количество займов)
+     */
     @Override
     public Map<String, Long> getLoanStatistics(LocalDate startDate, LocalDate endDate) {
         String sql =
