@@ -5,7 +5,7 @@ plugins {
     id 'jacoco'
     id 'checkstyle'
     id 'com.diffplug.spotless' version '6.25.0'
-    id 'org.openapi.generator' version '6.6.0'  // Добавлен плагин OpenAPI Generator
+    id 'org.openapi.generator' version '6.6.0'
 }
 
 group = 'ru.mentee.library'
@@ -34,8 +34,9 @@ ext {
             jackson          : '2.17.0',
             jaxbApi          : '4.0.0',
             jaxbRuntime      : '4.0.2',
-            openapiGenerator : '6.6.0',  // Добавлена версия OpenAPI Generator
-            springdoc        : '2.5.0'
+            openapiGenerator : '6.6.0',
+            springdoc        : '2.5.0',
+            springSecurity   : '6.2.4'
     ]
 }
 
@@ -44,6 +45,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.liquibase:liquibase-core'
 
     // Database
@@ -79,6 +81,7 @@ dependencies {
 
     // Testing
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.security:spring-security-test'
     testImplementation platform("org.junit:junit-bom:${versions.junit}")
     testImplementation 'org.junit.jupiter:junit-jupiter'
     testImplementation "org.mockito:mockito-core:${versions.mockito}"
