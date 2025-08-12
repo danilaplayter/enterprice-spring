@@ -5,14 +5,19 @@ plugins {
     id 'jacoco'
     id 'checkstyle'
     id 'com.diffplug.spotless' version '6.25.0'
-    id 'org.openapi.generator' version '6.6.0'  // Добавлен плагин OpenAPI Generator
+    id 'org.openapi.generator' version '6.6.0'
+    id 'application'
+    id 'org.liquibase.gradle' version '2.2.0'
 }
 
-group = 'ru.mentee.library'
+group = 'ru.mentee.power'
 version = '0.0.1-SNAPSHOT'
 
 java {
     sourceCompatibility = '21'
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
 }
 
 repositories {
@@ -22,62 +27,68 @@ repositories {
 ext {
     versions = [
             postgresql       : '42.6.0',
-            lombok           : '1.18.30',
-            slf4j            : '2.0.9',
-            logback          : '1.4.14',
-            junit            : '5.10.0',
-            assertj          : '3.24.2',
-            mockito          : '5.7.0',
-            testcontainers   : '1.19.7',
-            h2               : '2.2.224',
-            googleJavaFormat : '1.17.0',
-            jackson          : '2.17.0',
-            jaxbApi          : '4.0.0',
-            jaxbRuntime      : '4.0.2',
-            openapiGenerator : '6.6.0',  // Добавлена версия OpenAPI Generator
-            springdoc        : '2.5.0'
+            lombok          : '1.18.30',
+            slf4j           : '2.0.9',
+            logback         : '1.4.14',
+            junit           : '5.10.0',
+            assertj         : '3.24.2',
+            mockito         : '5.7.0',
+            testcontainers  : '1.19.7',
+            h2              : '2.2.224',
+            googleJavaFormat: '1.17.0',
+            jackson         : '2.17.0',
+            jaxbApi         : '4.0.0',
+            jaxbRuntime     : '4.0.2',
+            openapiGenerator: '6.6.0',
+            springdoc       : '2.5.0',
+            liquibase       : '4.27.0',
+            mapstruct       : '1.5.5.Final',
+            springRetry     : '2.0.5',
+            resilience4j    : '2.2.0',
+            shedlock        : '5.10.2'
     ]
 }
 
 dependencies {
-    // Spring Boot starters
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
-    implementation 'org.liquibase:liquibase-core'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'org.springframework.boot:spring-boot-starter-aop'
 
-    // Database
+    implementation "org.liquibase:liquibase-core:${versions.liquibase}"
     runtimeOnly "org.postgresql:postgresql:${versions.postgresql}"
-    testImplementation "com.h2database:h2:${versions.h2}"
+    runtimeOnly "com.h2database:h2:${versions.h2}"
 
-    // Lombok
+    implementation "org.springframework.retry:spring-retry:${versions.springRetry}"
+    implementation "io.github.resilience4j:resilience4j-spring-boot3:${versions.resilience4j}"
+    implementation "net.javacrumbs.shedlock:shedlock-spring:${versions.shedlock}"
+    implementation "net.javacrumbs.shedlock:shedlock-provider-jdbc-template:${versions.shedlock}"
+
     compileOnly "org.projectlombok:lombok:${versions.lombok}"
     annotationProcessor "org.projectlombok:lombok:${versions.lombok}"
     testCompileOnly "org.projectlombok:lombok:${versions.lombok}"
     testAnnotationProcessor "org.projectlombok:lombok:${versions.lombok}"
 
-    // Logging
+    implementation "org.mapstruct:mapstruct:${versions.mapstruct}"
+    annotationProcessor "org.mapstruct:mapstruct-processor:${versions.mapstruct}"
+
     implementation "org.slf4j:slf4j-api:${versions.slf4j}"
     implementation "ch.qos.logback:logback-classic:${versions.logback}"
     implementation "ch.qos.logback:logback-core:${versions.logback}"
 
-    // Jackson
     implementation "com.fasterxml.jackson.core:jackson-databind:${versions.jackson}"
     implementation "com.fasterxml.jackson.core:jackson-core:${versions.jackson}"
     implementation "com.fasterxml.jackson.core:jackson-annotations:${versions.jackson}"
     implementation "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:${versions.jackson}"
 
-    // JAXB
     implementation "jakarta.xml.bind:jakarta.xml.bind-api:${versions.jaxbApi}"
     implementation "org.glassfish.jaxb:jaxb-runtime:${versions.jaxbRuntime}"
 
-    // OpenAPI
     implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:${versions.springdoc}"
     implementation "org.openapitools:jackson-databind-nullable:0.2.6"
     implementation "io.swagger.core.v3:swagger-annotations:2.2.20"
-    implementation "javax.annotation:javax.annotation-api:1.3.2"
 
-    // Testing
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation platform("org.junit:junit-bom:${versions.junit}")
     testImplementation 'org.junit.jupiter:junit-jupiter'
@@ -89,49 +100,69 @@ dependencies {
     testImplementation "org.testcontainers:postgresql:${versions.testcontainers}"
 }
 
-// Конфигурация OpenAPI Generator
-openApiGenerate {
-    generatorName = "spring"
-    inputSpec = "${projectDir}/src/main/resources/api/online-banking-api.yaml"
-    outputDir = "$buildDir/generated"
-    apiPackage = "ru.mentee.api.generated.controller"
-    modelPackage = "ru.mentee.api.generated.dto"
-    configOptions = [
-            dateLibrary: "java8",
-            interfaceOnly: "true",
-            useTags: "true",
-            performBeanValidation: "true",
-            useBeanValidation: "true",
-            useSpringBoot3: "true",
-            delegatePattern: "true",
-            openApiNullable: "false"
-    ]
-}
-
-// Добавляем сгенерированный код в classpath
-sourceSets {
-    main {
-        java {
-            srcDirs += "$buildDir/generated/src/main/java"
-        }
-    }
-}
-
-// Остальные конфигурации (checkstyle, test, jacoco, spotless) остаются без изменений
 checkstyle {
     toolVersion = '10.12.5'
     configFile = file("${rootDir}/config/checkstyle/google_checks.xml")
     maxErrors = 0
-    maxWarnings = -1
-    ignoreFailures = true
+    ignoreFailures = false
+    showViolations = true
+
+    configProperties = [
+            'org.checkstyle.google.suppressionfilter.config': "${rootDir}/config/checkstyle/suppressions.xml",
+            'checkstyle.indentation': '4'
+    ]
 }
+
+spotless {
+    java {
+        target 'src/main/java/**/*.java', 'src/test/java/**/*.java'
+        targetExclude '**/generated/**', '**/build/**'
+
+        googleJavaFormat('1.17.0').aosp()
+                .reflowLongStrings()
+                .skipJavadocFormatting()
+                .style('GOOGLE')
+
+        importOrder()
+        removeUnusedImports()
+
+        trimTrailingWhitespace()
+        indentWithSpaces(4)
+        endWithNewline()
+
+        licenseHeader '/* (C) \$YEAR MENTEE POWER */\n\n'
+    }
+
+    format 'misc', {
+        target '**/*.gradle', '**/*.md', '**/.gitignore'
+        trimTrailingWhitespace()
+        indentWithSpaces(4)
+        endWithNewline()
+    }
+}
+
+processResources {
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+    exclude 'application.yml'
+}
+
+tasks.withType(JavaCompile) {
+    options.compilerArgs << '-Xlint:unchecked'
+    options.deprecation = true
+    options.encoding = 'UTF-8'
+}
+
+compileJava.dependsOn spotlessApply
+check.dependsOn jacocoTestReport, spotlessCheck
 
 test {
     useJUnitPlatform()
     finalizedBy jacocoTestReport
     testLogging {
         events "passed", "skipped", "failed"
+        exceptionFormat "full"
     }
+    systemProperty 'spring.profiles.active', 'test'
 }
 
 jacoco {
@@ -145,34 +176,73 @@ jacocoTestReport {
         xml.required = true
         csv.required = false
     }
-}
-
-tasks.named('check') {
-    dependsOn jacocoTestReport
-}
-
-spotless {
-    java {
-        target 'src/**/*.java'
-        googleJavaFormat("${versions.googleJavaFormat}").aosp().reflowLongStrings().skipJavadocFormatting()
-        removeUnusedImports()
-        trimTrailingWhitespace()
-        endWithNewline()
-        licenseHeader '/* @MENTEE_POWER (C)$YEAR */'
-    }
-
-    sql {
-        target 'src/**/*.sql'
-        dbeaver()
-    }
-
-    format 'misc', {
-        target '*.gradle', '*.md', '.gitignore', '.gitattributes'
-        trimTrailingWhitespace()
-        indentWithSpaces(4)
-        endWithNewline()
+    afterEvaluate {
+        classDirectories.setFrom(files(classDirectories.files.collect {
+            fileTree(dir: it, exclude: [
+                    '**/generated/**',
+                    '**/config/**',
+                    '**/exception/**',
+                    '**/dto/**',
+                    '**/model/**'
+            ])
+        }))
     }
 }
 
-// Зависимость между компиляцией Java и генерацией OpenAPI
-compileJava.dependsOn tasks.named('openApiGenerate')
+openApiGenerate {
+    generatorName = "spring"
+    inputSpec = "${projectDir}/src/main/resources/api/openapi.yml"
+    outputDir = "$buildDir/generated"
+    apiPackage = "ru.mentee.power.api.generated.controller"
+    modelPackage = "ru.mentee.power.api.generated.dto"
+    configOptions = [
+            dateLibrary: "java8",
+            interfaceOnly: "true",
+            useTags: "true",
+            performBeanValidation: "true",
+            useBeanValidation: "true",
+            useSpringBoot3: "true",
+            delegatePattern: "true",
+            openApiNullable: "false",
+            skipDefaultInterface: "true"
+    ]
+}
+
+liquibase {
+    activities {
+        main {
+            changelogFile 'db/changelog/v1/db.changelog-master.yaml'
+            url 'jdbc:postgresql://localhost:5432/mentee_power_db'
+            username 'mentee_power'
+            password 'password'
+            driver 'org.postgresql.Driver'
+            referenceUrl 'h2:file:./build/h2db'
+            referenceUsername 'sa'
+            referencePassword ''
+            referenceDriver 'org.h2.Driver'
+        }
+    }
+    runList = 'main'
+}
+
+application {
+    mainClass = 'ru.mentee.power.BookingServiceApplication'
+}
+
+sourceSets {
+    main {
+        java {
+            srcDirs += "$buildDir/generated/src/main/java"
+        }
+    }
+}
+
+tasks.register('dockerBuild', Exec) {
+    dependsOn build
+    commandLine 'docker', 'build', '-t', 'booking-service', '.'
+}
+
+tasks.register('dockerRun', Exec) {
+    dependsOn dockerBuild
+    commandLine 'docker', 'run', '-p', '8080:8080', 'booking-service'
+}
