@@ -1,12 +1,12 @@
 /* @MENTEE_POWER (C)2025 */
-package ru.mentee.taskmanager;
+package ru.mentee.commerce;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class TaskManagerApplication {
+public class ECommerceApplication {
     public static void main(String[] args) {
-        SpringApplication.run(TaskManagerApplication.class, args);
+        SpringApplication.run(ECommerceApplication.class, args);
     }
 }
